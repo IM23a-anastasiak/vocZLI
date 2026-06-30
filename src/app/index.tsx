@@ -1,98 +1,172 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Text,
+  View,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import VociItem from "../components/VociItem";
+import { useVoci } from "../context/vociContext";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+export default function Index() {
+  const router = useRouter();
+  const { vociList, isLoading } = useVoci();
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable onPress={() => router.push("/addVoci")}>
+              <Ionicons name="add" size={28} color="#fff" />
+            </Pressable>
+          ),
+        }}
+      />
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.header}>
+        <Text>VocZLI</Text>
+        <Text>Meine Vokabel-Lern-App</Text>
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      {isLoading ? (
+        <ActivityIndicator size="large" />
+      ) : (
+        <FlatList
+          data={vociList}
+          renderItem={({ item }) => <VociItem voci={item} />}
+          keyExtractor={(item) => item.term}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="book-outline" size={50} color="gray" />
+              <Text style={styles.emptyText}>Keine Vokabeln vorhanden.</Text>
+            </View>
+          }
+        />
+      )}
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <Pressable
+        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+        onPress={() => router.push("/learn")}
+      >
+        <Ionicons name="play" size={28} color="#fff" />
+      </Pressable>
+      <Pressable
+        style={({ pressed }) => [styles.fabsettings, pressed && styles.fabPressedsettings]}
+        onPress={() => router.push("/SensorDebug")}
+      >
+        <Ionicons name="menu" size={28} color="#fff" />
+      </Pressable>
+      <Pressable
+        style={({ pressed }) => [styles.fabpushup, pressed && styles.fabpushup]}
+        onPress={() => router.push("/pushup")}
+      >
+        <Ionicons name="barbell" size={28} color="#fff" />
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+
+  header: {
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 20,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+
+  list: {
+    paddingHorizontal: 16,
   },
-  title: {
-    textAlign: 'center',
+
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: 40,
   },
-  code: {
-    textTransform: 'uppercase',
+
+  emptyText: {
+    marginTop: 10,
+    color: "gray",
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#007AFF",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+
+  fabPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.95 }],
+  },
+  fabsettings: {
+    position: "absolute",
+    left: 20,
+    bottom: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#007AFF",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+
+  fabPressedsettings: {
+    opacity: 0.7,
+    transform: [{ scale: 0.95 }],
+  },
+  fabpushup: {
+    position: "absolute",
+    left: 20,
+    top: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#007AFF",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+
+  fabPressedpushup: {
+    opacity: 0.7,
+    transform: [{ scale: 0.95 }],
   },
 });

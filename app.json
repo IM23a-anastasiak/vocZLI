@@ -34,6 +34,17 @@
             "imageWidth": 76
           }
         }
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Die App benötigt Zugriff auf deine Galerie, um Bilder zu Vokabeln hinzuzufügen.",
+          "cameraPermission": "Die App benötigt Zugriff auf deine Kamera, um Bilder für Vokabeln aufzunehmen."
+        }
       ]
     ],
     "experiments": {
